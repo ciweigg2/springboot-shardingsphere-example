@@ -10,12 +10,12 @@ spring:
       names: shard_order_0,shard_order_1
       shard_order_0:
           driver-class-name: com.mysql.jdbc.Driver
-          url: jdbc:mysql://114.67.69.121:3306/shard_order_0
+          url: jdbc:mysql://127.0.0.1:3306/shard_order_0
           username: root
           password: 123456
       shard_order_1:
           driver-class-name: com.mysql.jdbc.Driver
-          url: jdbc:mysql://114.67.69.121:3306/shard_order_1
+          url: jdbc:mysql://127.0.0.1:3306/shard_order_1
           username: root
           password: 123456
     props:

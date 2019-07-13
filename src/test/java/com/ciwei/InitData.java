@@ -31,16 +31,11 @@ public class InitData {
     @Autowired
     private OrdersDetailService ordersDetailService;
     private SnowFlake snowFlake = new SnowFlake(0, 0);
-
     @Test
     public void batchInitData() {
         for (int i = 0; i < 200000; i++) {
-            String year = "2019";
-            if (i == 100000) {
-                year = "2020";
-            }
             Orders orders = new Orders();
-            String orderId = year + String.valueOf(snowFlake.nextId());
+            String orderId = String.valueOf(snowFlake.nextId());
             orders.setId(orderId);
             orders.setAdddate(new Date());
             orders.setOrderType("1");
@@ -58,41 +53,45 @@ public class InitData {
         }
     }
 
-    CountDownLatch latch = new CountDownLatch(200000);
-
     @Test
-    public void initData() throws InterruptedException {
-        AtomicInteger atomicInteger = new AtomicInteger();
-        for (int i = 0; i < 200000; i++) {
-            String year = "2019";
-            if (atomicInteger.get() == 100000) {
-                year = "2020";
-            }
-            String finalYear = year;
-            pool.execute(() -> {
-                atomicInteger.getAndIncrement();
-                Orders orders = new Orders();
-                String orderId = finalYear + String.valueOf(snowFlake.nextId());
-                orders.setId(orderId);
-                orders.setAdddate(new Date());
-                orders.setOrderType("1");
-                orders.setOrderOrigin("2");
-                orders.setParentOrdersId("222211" + (new Random().nextInt(1000)));
-                orders.setParentOrdersUuid("333333");
-                ordersService.saveOrders(orders);
-
-                OrdersDetail ordersDetail = new OrdersDetail();
-                ordersDetail.setId(String.valueOf(snowFlake.nextId()));
-                ordersDetail.setOrdersId(orderId);
-                ordersDetail.setGoodsId((new Random().nextInt(1000) + "3333"));
-                ordersDetail.setGoodsName("测试商品" + (new Random().nextInt(1000)));
-                ordersDetailService.saveOrderDetail(ordersDetail);
-                latch.countDown();
-            });
+    public void initData() {
+        for (int i = 0; i < nThreads; i++) {
+            MyRunnable myRunnable = new MyRunnable("task" + i);
+            System.out.println("---------->当前线程是：" + i + " is running");
+            pool.execute(myRunnable);
         }
-        latch.await();
 //        关闭线程池
         pool.shutdown();
+    }
+
+    class MyRunnable implements Runnable {
+        private String name;
+
+        public MyRunnable(String name) {
+            this.name = name;
+        }
+
+        @Override
+        public void run() {
+
+            Orders orders = new Orders();
+            String orderId = String.valueOf(snowFlake.nextId());
+            orders.setId(orderId);
+            orders.setAdddate(new Date());
+            orders.setOrderType("1");
+            orders.setOrderOrigin("2");
+            orders.setParentOrdersId("222211" + (new Random().nextInt(1000)));
+            orders.setParentOrdersUuid("333333");
+            ordersService.saveOrders(orders);
+
+            OrdersDetail ordersDetail = new OrdersDetail();
+            ordersDetail.setId(String.valueOf(snowFlake.nextId()));
+            ordersDetail.setOrdersId(orderId);
+            ordersDetail.setGoodsId((new Random().nextInt(1000) + "3333"));
+            ordersDetail.setGoodsName("测试商品" + (new Random().nextInt(1000)));
+            ordersDetailService.saveOrderDetail(ordersDetail);
+        }
+
     }
 
 }
