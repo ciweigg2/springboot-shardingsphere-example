@@ -15,6 +15,7 @@ Sharding-JDBC 中共有五种分片策略。1、标准分片策略；2、复合�
 Sharding-JDBC并没有提供内置分片算法，而是通过分片策略将各种场景提炼出来，提供更高层次的抽象，并提供接口让应用开发者自行实现分片算法。
 分片策略：
 包含分片键和分片算法，由于分片算法的独立性，将其独立抽离。真正可用于分片操作的是分片键+分片算法，也就是分片策略。
+
 |    分片策略 | 概念    |  分片算法   | 概念    | 适用场景|
 | --- | --- | --- | --- | --- |
 |  标准分片策略  | 对应StandardShardingStrategy,只支持单分片键,提供对SQL语句中的=，IN和BETWEEN AND的分片操作支持,提供PreciseShardingAlgorithm和RangeShardingAlgorithm两个分片算法。    |  精确分片算法    |   对应PreciseShardingAlgorithm  | 适用于单分片键的= 和IN进行分片的场景。需要配合StandardShardingStrategy使用 |
